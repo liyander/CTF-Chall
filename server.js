@@ -126,7 +126,7 @@ app.get('/login', (req, res) => {
     res.render('login', { title: 'Login' });
 });
 
-// 1. SSRF Public Endpoint (Hardened)
+
 app.get('/api/preview', async (req, res) => {
     let { url } = req.query;
     if (!url) return res.status(400).json({ error: 'Missing url' });
