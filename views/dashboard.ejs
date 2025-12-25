@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursed Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <div class="main-container">
+        <header>
+            <h1>User<span>Dashboard</span></h1>
+            <p>Welcome back, <%= user.username %> (<%= user.role %>)</p>
+        </header>
+
+        <main>
+            <div class="card glass">
+                <h2>Theme Preferences</h2>
+                <div class="input-group">
+                    <button onclick="updateTheme('dark')">Dark Mode</button>
+                    <button onclick="updateTheme('light')">Light Mode</button>
+                    <button onclick="updateTheme('cursed')">Cursed Mode</button>
+                </div>
+                <div id="status" style="margin-top: 10px;"></div>
+            </div>
+
+            <div class="card glass info-card">
+                <h3>Debug Info</h3>
+                <pre><%= JSON.stringify(settings, null, 2) %></pre>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function updateTheme(mode) {
+            try {
+                const res = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ theme: mode })
+                });
+                const data = await res.json();
+                document.getElementById('status').innerText = 'Theme Updated!';
+                setTimeout(() => location.reload(), 1000);
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+
+</html>

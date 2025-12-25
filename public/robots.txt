@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /internal/debug/source
+Disallow: /api/settings
+Disallow: /admin

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Control // Tintin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .col-span-1 {
+            grid-column: span 1;
+        }
+
+        .col-span-2 {
+            grid-column: span 2;
+        }
+
+        .col-span-3 {
+            grid-column: span 3;
+        }
+
+        .col-span-4 {
+            grid-column: span 4;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        .stat-sub {
+            font-size: 0.7rem;
+            color: #aaa;
+        }
+
+        .log-terminal {
+            background: rgba(0, 0, 0, 0.6);
+            height: 250px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            padding: 10px;
+            border-left: 2px solid var(--primary);
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            opacity: 0.8;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 2px;
+        }
+
+        .log-time {
+            color: var(--primary);
+            margin-right: 10px;
+        }
+
+        .log-crit {
+            color: #ff0055;
+            font-weight: bold;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            padding: 12px;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .action-icon {
+            margin-right: 10px;
+            opacity: 0.7;
+        }
+
+        .map-placeholder {
+            width: 100%;
+            height: 200px;
+            background: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.05) 0, rgba(255, 255, 255, 0.05) 10px, transparent 10px, transparent 20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px dashed var(--glass-border);
+            border-radius: 8px;
+        }
+
+        .user-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            background: #666;
+            border-radius: 50%;
+        }
+
+        .online-led {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #00ff88;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container" style="max-width: 1400px; padding: 1rem;">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <h1 style="font-size: 2.5rem;">NEXUS<span>CORE</span> <span
+                        style="font-size: 1rem; color: var(--text-muted);">v4.2.0</span></h1>
+                <p>Commander <%= user.username %> // <span style="color: #ff0055;">LEVEL 3 AUTH</span></p>
+            </div>
+
+            <div style="display: flex; gap: 20px;">
+                <div class="card glass" style="padding: 10px 20px;">
+                    <span style="font-size: 0.8rem; display: block; color: var(--text-muted);">UPTIME</span>
+                    <span style="font-weight: bold;">42d 13h 05m</span>
+                </div>
+                <div class="card glass" style="padding: 10px 20px;">
+                    <span style="font-size: 0.8rem; display: block; color: var(--text-muted);">THREAT LEVEL</span>
+                    <span style="font-weight: bold; color: yellow;">ELEVATED</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+
+            <!-- ROW 1 -->
+
+            <!-- Quick Stats -->
+            <div class="card glass col-span-1">
+                <h3>Active Nodes</h3>
+                <div class="stat-value">1,337</div>
+                <div class="stat-sub">+12% from last cycle</div>
+                <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+                <div style="font-size: 0.8rem;">
+                    <div>US-EAST-1: <span style="float: right; color:#00ff88">ONLINE</span></div>
+                    <div>EU-WEST-2: <span style="float: right; color:#00ff88">ONLINE</span></div>
+                    <div>AP-SOUTH: <span style="float: right; color:yellow">LATENCY</span></div>
+                </div>
+            </div>
+
+            <!-- Traffic Graph -->
+            <div class="card glass col-span-2">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <h3>Global Traffic</h3>
+                    <select style="background: transparent; color: white; border: 1px solid #555; padding: 2px;">
+                        <option>Live (Realtime)</option>
+                        <option>Last 24h</option>
+                    </select>
+                </div>
+                <div style="position: relative; height: 180px; width: 100%;">
+                    <canvas id="trafficChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Control Panel (USeless) -->
+            <div class="card glass col-span-1">
+                <h3>Quick Actions</h3>
+                <div class="action-btn" onclick="toast('Purging Cache...')">
+                    <span class="material-icons action-icon">delete</span> Purge Cache
+                </div>
+                <div class="action-btn" onclick="toast('Scanning Ports...')">
+                    <span class="material-icons action-icon">radar</span> Port Scan
+                </div>
+                <div class="action-btn" onclick="toast('Generating Report...')">
+                    <span class="material-icons action-icon">description</span> Daily Report
+                </div>
+                <div class="action-btn" style="border-color: #ff0055;"
+                    onclick="toast('ACCESS DENIED: DEFCON 1 REQUIRED')">
+                    <span class="material-icons action-icon" style="color: #ff0055;">warning</span> Nuke Protocol
+                </div>
+            </div>
+
+            <!-- ROW 2 -->
+
+            <!-- Interface Settings (THE VULN) -->
+            <div class="card glass col-span-1">
+                <h3><span class="material-icons" style="vertical-align: middle;">palette</span> UX Customizer</h3>
+                <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 10px;">Adjust visual parameters.</p>
+
+                <div class="action-btn" onclick="updateTheme({theme: 'dark'})">
+                    <span>Dark Mode</span>
+                    <span
+                        style="font-size: 0.7rem; background: #00ff88; color: black; padding: 1px 4px; border-radius: 4px;">ACTIVE</span>
+                </div>
+                <div class="action-btn" onclick="updateTheme({theme: 'light'})">
+                    <span>Light Mode</span>
+                </div>
+                <div class="action-btn" onclick="updateTheme({theme: 'contrast'})">
+                    <span>High Contrast</span>
+                </div>
+
+                <div id="status" style="margin-top: 5px; font-size: 0.8rem; height: 1.2em;"></div>
+
+                <!-- Hidden Debug -->
+                <details style="margin-top: 20px; font-size: 0.7rem; color: #555;">
+                    <summary>Debug Object Dump</summary>
+                    <pre style="white-space: pre-wrap;"><%= JSON.stringify(settings) %></pre>
+                </details>
+            </div>
+
+            <!-- Global Map Fake -->
+            <div class="card glass col-span-2">
+                <h3>Threat Map</h3>
+                <div class="map-placeholder">
+                    <span style="color: var(--text-muted);">[ Encrypted Map Data Stream ]</span>
+                    <!-- You could generate an image here, but css pattern is lighter -->
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 10px; font-size: 0.8rem;">
+                    <span style="color: #ff0055">● Critical (3)</span>
+                    <span style="color: yellow">● Warning (12)</span>
+                    <span style="color: #00ff88">● Secure (8,492)</span>
+                </div>
+            </div>
+
+            <!-- Active Users -->
+            <div class="card glass col-span-1">
+                <h3>Team (4 Online)</h3>
+                <ul class="user-list">
+                    <li class="user-item">
+                        <div class="user-avatar"></div> tintin <div class="online-led"></div>
+                    </li>
+                    <li class="user-item">
+                        <div class="user-avatar"></div> admin <div class="online-led" style="background: red;"></div>
+                    </li>
+                    <li class="user-item">
+                        <div class="user-avatar"></div> guest <div class="online-led" style="background: yellow;"></div>
+                    </li>
+                </ul>
+                <button
+                    style="width: 100%; padding: 5px; background: transparent; border: 1px dashed #555; color: #aaa;">Invite
+                    Member</button>
+            </div>
+
+            <!-- ROW 3 -->
+
+            <!-- Terminal Logs -->
+            <div class="card glass col-span-4">
+                <div style="display: flex; justify-content: space-between;">
+                    <h3>System Kernel Log</h3>
+                    <span style="font-family: monospace; color: #00ff88;">tail -f /var/log/syslog</span>
+                </div>
+                <div class="log-terminal" id="logTerminal"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Simple Toast Notification -->
+    <div id="toast"
+        style="position: fixed; bottom: 20px; right: 20px; background: #333; padding: 10px 20px; border-radius: 4px; display: none; border-left: 4px solid var(--primary);">
+        Action Completed</div>
+
+    <script>
+        // --- CHARTS ---
+        const ctx = document.getElementById('trafficChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: 20 }, (_, i) => i),
+                datasets: [{
+                    label: 'Bandwidth (Gbps)',
+                    data: Array.from({ length: 20 }, () => Math.floor(Math.random() * 100)),
+                    borderColor: '#00ff88',
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { display: false }, y: { display: false } },
+                animation: { duration: 0 }
+            }
+        });
+
+        // Live Update Chart
+        setInterval(() => {
+            const data = chart.data.datasets[0].data;
+            data.shift();
+            data.push(Math.floor(Math.random() * 100));
+            chart.update('none');
+        }, 1000);
+
+        // --- LOGS ---
+        const logContainer = document.getElementById('logTerminal');
+        const processes = ['kernel', 'auth-agent', 'net-daemon', 'firewall', 'cron'];
+        const messages = [
+            'Packet dropped from 10.0.0.52',
+            'Allocating memory block 0x4F2A',
+            'User session kept alive',
+            'Heartbeat received',
+            'Garbage collection started'
+        ];
+
+        function addLog(msg, type = 'INFO') {
+            const div = document.createElement('div');
+            div.className = 'log-entry';
+            const time = new Date().toISOString().split('T')[1].split('.')[0];
+            const color = type === 'CRIT' ? '#ff0055' : type === 'WARN' ? 'yellow' : '#aaa';
+            const proc = processes[Math.floor(Math.random() * processes.length)];
+
+            div.innerHTML = `<span class="log-time">[${time}]</span> <span style="color:${color}">${type}</span> <span style="color: var(--primary)">${proc}</span>: ${msg}`;
+            logContainer.appendChild(div);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Init logs
+        for (let i = 0; i < 10; i++) addLog(messages[Math.floor(Math.random() * messages.length)]);
+
+        setInterval(() => {
+            if (Math.random() > 0.7) {
+                addLog(messages[Math.floor(Math.random() * messages.length)]);
+            }
+        }, 2000);
+
+        // --- TOAST ---
+        function toast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2000);
+        }
+
+        // --- VULNERABLE FUNCTION ---
+        async function updateTheme(payload) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = '<span style="color:yellow">Syncing...</span>';
+
+            try {
+                // The Vulnerability: Merges payload into global object
+                const res = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    statusDiv.innerHTML = '<span style="color:#00ff88">Synced.</span>';
+                    // Subtle reload to trigger pollution if RCE payload was sent
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    statusDiv.innerHTML = `<span style="color:red">${data.error}</span>`;
+                }
+            } catch (e) {
+                console.error(e);
+                statusDiv.innerText = "Connection Lost";
+            }
+        }
+    </script>
+</body>
+
+</html>

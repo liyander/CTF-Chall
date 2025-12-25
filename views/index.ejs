@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="main-container">
+        <header>
+            <h1>Cursed<span>Viewer</span></h1>
+            <p>Explore the web from the shadows.</p>
+            <nav style="margin-top: 1rem;">
+                <% if (user) { %>
+                    <span style="color: #00ff88; margin-right: 15px;">Logged in as: <%= user.username %></span>
+                    <a href="/dashboard" style="color: var(--primary);">Dashboard</a>
+                    <% } else { %>
+                        <a href="/login" style="color: var(--text-muted);">Login</a>
+                        <% } %>
+            </nav>
+        </header>
+
+        <main>
+            <div class="card glass">
+                <h2>URL Previewer</h2>
+                <div class="input-group">
+                    <input type="text" id="urlInput" placeholder="https://example.com" value="<%= query.url || '' %>">
+                    <button id="previewBtn">Fetch</button>
+                </div>
+                <div id="result" class="result-box"></div>
+            </div>
+
+            <div class="card glass info-card">
+                <h3>Current Theme</h3>
+                <pre id="themeDisplay"><%= JSON.stringify(theme, null, 2) %></pre>
+            </div>
+        </main>
+
+        <footer>
+            <p>System Status: <span class="status-ok">OPERATIONAL</span></p>
+            <p style="margin-top: 5px; font-size: 0.7rem; opacity: 0.6;">Designed and developed by tintin</p>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('previewBtn').addEventListener('click', async () => {
+            const url = document.getElementById('urlInput').value;
+            const resultBox = document.getElementById('result');
+
+            resultBox.innerHTML = '<div class="loader"></div>';
+
+            try {
+                const res = await fetch(`/api/preview?url=${encodeURIComponent(url)}`);
+                const data = await res.json();
+
+                if (data.error) {
+                    resultBox.innerHTML = `<span class="error">Error: ${data.error}</span>`;
+                } else {
+                    resultBox.innerHTML = `
+                        <div class="meta">
+                            <span>Status: ${data.status}</span>
+                            <span>Size: ${data.length}b</span>
+                        </div>
+                        <pre>${data.preview.replace(/</g, '&lt;')}</pre>
+                    `;
+                }
+            } catch (e) {
+                resultBox.innerHTML = `<span class="error">Client Error: ${e.message}</span>`;
+            }
+        });
+    </script>
+</body>
+
+</html>
