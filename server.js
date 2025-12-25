@@ -78,6 +78,9 @@ const requireAuth = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, HMAC_SECRET);
+        if (decoded.username !== 'tintin') {
+            return res.status(403).send('Access Denied');
+        }
         req.user = decoded;
         next();
     } catch (err) {
